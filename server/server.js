@@ -13,7 +13,6 @@ var security = require('./lib/security');
 var xsrf = require('./lib/xsrf');
 var protectJSON = require('./lib/protectJSON');
 require('express-namespace');
-var moment = require('moment-timezone');
 
 var app = express();
 var secureServer = https.createServer(credentials, app);
@@ -66,9 +65,6 @@ require('./lib/routes/appFile').addRoutes(app, config);
 
 // A standard error handler - it picks up any left over errors and returns a nicely formatted server 500 error
 app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-
-var newYork   = moment.tz("2014-06-01 12:00", "America/New_York");
-console.log('Time is maybe', newYork.format());
 
 // Start up the server on the port specified in the config
 server.listen(config.server.listenPort);
