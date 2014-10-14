@@ -1,0 +1,21 @@
+<table class="table table-bordered table-condensed table-striped table-hover">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>City</th>
+        <th>Offset to GMT</th>
+        <th>Current time</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="timezone in timezones" ng-click="edit(timezone.$id())">
+        <td>{{timezone.name}}</td>
+        <td>{{timezone.city}}</td>
+        <td>{{timezone.offset}}</td>
+        <td>{{ currtimes[timezone.$id()] }}</td>
+    </tr>
+    </tbody>
+</table>
+<div class="well">
+    <button class="btn" ng-click="new()">New Timezone</button>
+</div>

@@ -1,0 +1,19 @@
+<div class="well">
+    <form name="form" crud-edit="timezone">
+        <legend>Timezone</legend>
+        <div class="row-fluid">
+            <div class="span6">
+                <label>Name</label>
+                <input type="text" name="name" ng-model="timezone.name" class="span10" required autofocus>
+                <label>City</label>
+                <input type="text" name="city" ng-model="timezone.city" class="span10" required>
+                <label>Offset from GMT</label>
+                <input type="text" name="offset" ng-model="timezone.offset" class="span10" required>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <hr>
+            <crud-buttons class="span12"></crud-buttons>
+        </div>
+    </form>
+</div>
