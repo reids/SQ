@@ -5,8 +5,8 @@ angular.module('timezones', ['resources.timezones', 'security.authorization'])
 	    templateUrl:'timezones/timezones-list.tpl.html',
 	    controller:'TimezonesViewCtrl',
 	    resolve:{
-	      timezones:['Timezones', function (Timezones) {
-	        return Timezones.all();
+	      timezones:['Timezones', 'security', function (Timezones, security) {
+	        return Timezones.forUser(security.currentUser);
 	      }],
 	      authenticatedUser: securityAuthorizationProvider.requireAuthenticatedUser
 	    }
