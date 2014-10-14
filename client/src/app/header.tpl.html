@@ -1,0 +1,20 @@
+<div class="navbar" ng-controller="HeaderCtrl">
+    <div class="navbar-inner">
+
+        <ul class="nav" ng-show="isAuthenticated()">
+            <li ng-class="{active:isNavbarActive('projects')}"><a href="/timezones">My Timezones</a></li>
+            <li class="dropdown" ng-class="{active:isNavbarActive('admin'), open:isAdminOpen}" ng-show="isAdmin()">
+                <a id="adminmenu" role="button" class="dropdown-toggle" ng-click="isAdminOpen=!isAdminOpen">Admin<b class="caret"></b></a>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="adminmenu">
+                    <li><a tabindex="-1" href="/admin/timezones" ng-click="isAdminOpen=false">Manage Timezones</a></li>
+<!--                     <li><a tabindex="-1" href="/admin/users" ng-click="isAdminOpen=false">Manage Users</a></li> -->
+                </ul>
+            </li>
+        </ul>
+        <ul class="nav pull-right" ng-show="hasPendingRequests()">
+            <li class="divider-vertical"></li>
+            <li><a href="#"><img src="/static/img/spinner.gif"></a></li>
+        </ul>
+        <login-toolbar></login-toolbar>
+    </div>
+</div>
