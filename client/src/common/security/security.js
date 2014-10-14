@@ -28,14 +28,20 @@ angular.module('security.service', [
     }
   }
   function onLoginDialogClose(success) {
-    loginDialog = null;
-    if ( success ) {
-      queue.retryAll();
-    } else {
-      queue.cancelAll();
-      redirect();
-    }
-  }
+	    loginDialog = null;
+	    if ( success ) {
+	    	// if we got hear with no queue then use probably just clicked thelogin button, doa  redirect to refresh the
+	    	// screen for the logged in state
+	    	if (queue.hasMore()) {
+	    		queue.retryAll();
+	    	} else {
+	    		redirect();
+	    	}
+	    } else {
+	      queue.cancelAll();
+	      redirect();
+	    }
+	  }
 
   // Register a handler for when an item is added to the retry queue
   queue.onItemAddedCallbacks.push(function(retryItem) {
