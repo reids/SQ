@@ -29,15 +29,13 @@ angular.module('admin-timezones', [
 	  
   $scope.currtimes = [];
   
-  $scope.currenttime = moment.tz('').format('HH:mm:ss');
   angular.forEach($scope.timezones, function(timezone) {
-	    $scope.currtimes[timezone.$id()] = moment.tz(timezone.name).format('HH:mm:ss');
+	    $scope.currtimes[timezone.$id()] = moment().zone(timezone.offset * -60).format('HH:mm:ss');
 	  });
   
   var tick = function() {
-    $scope.currenttime = moment.tz('').format('HH:mm:ss');
     angular.forEach($scope.timezones, function(timezone) {
-	    $scope.currtimes[timezone.$id()] = moment.tz(timezone.name).format('HH:mm:ss');
+	    $scope.currtimes[timezone.$id()] = moment().zone(timezone.offset * -60).format('HH:mm:ss');
   	  });
 	$timeout(tick, 1000);
   }
