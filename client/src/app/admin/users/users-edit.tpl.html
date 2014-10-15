@@ -3,7 +3,7 @@
         <legend>User</legend>
 <!--         <gravatar email="user.email" size="200" class="img-polaroid pull-right"></gravatar> -->
         <label for="email">E-mail</label>
-        <input class="span6" type="email" id="email" name="email" ng-model="user.email" required unique-email>
+        <input class="span6" type="email" id="email" name="email" ng-model="user.email" required>
         <span ng-show="showError('email', 'required')" class="help-inline">This field is required.</span>
         <span ng-show="showError('email', 'email')" class="help-inline">Please enter a valid email address.</span>
         <span ng-show="showError('email', 'uniqueEmail')" class="help-inline">This email address is not available - please enter another.</span>
