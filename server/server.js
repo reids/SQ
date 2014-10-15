@@ -13,6 +13,7 @@ var security = require('./lib/security');
 var xsrf = require('./lib/xsrf');
 var protectJSON = require('./lib/protectJSON');
 require('express-namespace');
+var restrictDB = require('./lib/restrictDB');
 
 var app = express();
 var secureServer = https.createServer(credentials, app);
@@ -49,6 +50,8 @@ app.namespace('/databases/:db/collections/:collection*', function() {
       next();
     }
   });
+  // restrict DB access to the logged in user
+  app.get('/', restrictDB);
   // Proxy database calls to the MongoDB
   app.all('/', mongoProxy(config.mongo.dbUrl, config.mongo.apiKey));
 });

@@ -8,15 +8,15 @@ module.exports = function(basePath, apiKey) {
 
   // Map the request url to the mongolab url
   // @Returns a parsed Url object
-  var mapUrl = module.exports.mapUrl = function(reqUrlString) {
+  var mapUrl = module.exports.mapUrl = function(reqUrlString, reqQuery) {
     var reqUrl = url.parse(reqUrlString, true);
     var newUrl = {
       hostname: basePath.hostname,
       protocol: basePath.protocol
     };
     var query = { apiKey: apiKey};
-    for(var key in reqUrl.query) {
-      query[key] = reqUrl.query[key];
+    for(var key in reqQuery) {
+      query[key] = reqQuery[key];
     }
     // https request expects path not pathname!
     newUrl.path = basePath.pathname + reqUrl.pathname + '?' + qs.stringify(query);
@@ -27,7 +27,7 @@ module.exports = function(basePath, apiKey) {
 
   // Map the incoming request to a request to the DB
   var mapRequest = module.exports.mapRequest = function(req) {
-    var newReq = mapUrl(req.url);
+    var newReq = mapUrl(req.path, req.query);
     newReq.method = req.method;
     newReq.headers = req.headers || {};
     // We need to fix up the hostname
