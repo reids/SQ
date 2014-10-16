@@ -1,4 +1,4 @@
-<h3>TimeZones info</h3>
+<h3>Timezones</h3>
 
 <table class="table table-bordered table-condensed table-striped table-hover">
     <thead>
@@ -16,8 +16,16 @@
 		<td>{{ timezone.city }}</td>
 		<td>{{ timezone.offset }}</td>
         <td>{{ currtimes[timezone.$id()] }}</td>
-<!-- 		<td><a ng-click="edit(timezone)">Edit</a> <a -->
-<!-- 			ng-click="remove(timezone)">Remove</a></td> -->
 	</tr>
     </tbody>
 </table>
+
+<form ng-submit="filter()">
+	<div class="well">
+	    <label for="filtercriteria">Filter Criteria</label>
+	    <input type="text" name="filtercriteria" ng-model="filterregexp">
+        <span ng-show="regExpErr" class="help-inline">Invalid regular expression.</span>
+        <br><button class="btn btn-primary" ng-click="filter()">Filter</button>
+	</div>
+</form>
+

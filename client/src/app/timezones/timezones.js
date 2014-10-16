@@ -15,6 +15,7 @@ angular.module('timezones', ['resources.timezones', 'security.authorization'])
 
 .controller('TimezonesViewCtrl', ['$scope', '$timeout', '$location', 'timezones', 'security', function ($scope, $timeout, $location, timezones, security) {
   $scope.timezones = timezones;
+  $scope.alltimezones = timezones;
 
   $scope.currtimes = [];
   
@@ -45,4 +46,26 @@ angular.module('timezones', ['resources.timezones', 'security.authorization'])
     $location.path('/timezones/'+timezone.$id()+'/remove');
   };
 
+  $scope.filter = function () {
+	  // Do we want to filter the timezones by name?
+		  
+		  try {
+			  if ($scope.filterregexp) {
+                var timezones = [];
+			    var re = new RegExp($scope.filterregexp, 'i');
+			    angular.forEach($scope.alltimezones, function(timezone) {
+			    	if (timezone.name.match(re)) {
+			    		timezones.push(timezone);  
+			    	}
+			    });
+			    $scope.timezones = timezones;
+     		  } else
+			    $scope.timezones = $scope.alltimezones;
+			}
+            $scope.regExpErr = false;
+			catch(err) {
+				$scope.regExpErr = true;
+			}
+  };
+	 
 }]);
