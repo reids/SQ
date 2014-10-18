@@ -6,14 +6,19 @@ var certificate = fs.readFileSync(__dirname + '/cert/server.crt').toString();
 var credentials = {key: privateKey, cert: certificate};
 
 var express = require('express');
-var mongoProxy = require('./lib/mongo-proxy');
 var config = require('./config.js');
+var mongoProxy = require('./lib/mongo-proxy');
+var dbProxy=mongoProxy(config.mongo.dbUrl, config.mongo.apiKey, config.mongo.dbName);
+// Maybe include the db utils in mongoproxy?
+var dbUtils = require('./lib/dbutils');
+dbUtils.initialize(config.mongo.dbUrl, config.mongo.apiKey, config.mongo.dbName, config.security.usersCollection)
 var passport = require('passport');
 var security = require('./lib/security');
 var xsrf = require('./lib/xsrf');
 var protectJSON = require('./lib/protectJSON');
 require('express-namespace');
 var restrictDB = require('./lib/restrictDB');
+var api = require('./lib/api');
 
 var app = express();
 var secureServer = https.createServer(credentials, app);
@@ -29,7 +34,7 @@ app.use(express.cookieParser(config.server.cookieSecret));  // Hash cookies with
 app.use(express.cookieSession());                           // Store the session in the (secret) cookie
 app.use(passport.initialize());                             // Initialize PassportJS
 app.use(passport.session());                                // Use Passport's session authentication strategy - this stores the logged in user in the session and will now run on any request
-app.use(xsrf);                                            // Add XSRF checks to the request
+//app.use(xsrf);                                            // Add XSRF checks to the request
 security.initialize(config.mongo.dbUrl, config.mongo.apiKey, config.security.dbName, config.security.usersCollection); // Add a Mongo strategy for handling the authentication
 
 app.use(function(req, res, next) {
@@ -53,7 +58,17 @@ app.namespace('/databases/:db/collections/:collection*', function() {
   // restrict DB access to the logged in user
   app.get('/', restrictDB);
   // Proxy database calls to the MongoDB
-  app.all('/', mongoProxy(config.mongo.dbUrl, config.mongo.apiKey));
+  app.all('/', dbProxy);
+});
+
+app.namespace('/api/*', function() {
+	
+	app.all('/:collection/:action?*', api(dbProxy, dbUtils));
+	
+	app.all('/', function(req, res, next) {
+		console.log("API request");
+		next();
+	})
 });
 
 require('./lib/routes/security').addRoutes(app, security);
