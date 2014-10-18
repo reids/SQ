@@ -3,8 +3,10 @@ var path = require('path');
 module.exports = {
   mongo: {
     dbUrl: 'https://api.mongolab.com/api/1',            // The base url of the MongoLab DB server
-    apiKey: 'M6UDE2i1mqi4s2BGZfElj_3o-bpPNTDE'          // MongoLab API key
+    apiKey: 'M6UDE2i1mqi4s2BGZfElj_3o-bpPNTDE',          // MongoLab API key
+    dbName: 'mongogb1'                                 // The name of database
   },
+//  FIXME, think we can remove all this security section, it was used to create an initial user
   security: {
     dbName: 'mongogb1',                                 // The name of database that contains the security information
     usersCollection: 'users'                            // The name of the collection contains user information
