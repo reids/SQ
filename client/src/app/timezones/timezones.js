@@ -61,8 +61,8 @@ angular.module('timezones', ['resources.timezones', 'security.authorization'])
 			    $scope.timezones = timezones;
      		  } else
 			    $scope.timezones = $scope.alltimezones;
+			  $scope.regExpErr = false;
 			}
-            $scope.regExpErr = false;
 			catch(err) {
 				$scope.regExpErr = true;
 			}
