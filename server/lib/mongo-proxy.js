@@ -2,7 +2,7 @@ var url = require('url');
 var qs = require('querystring');
 var https = require('https');
 
-module.exports = function(basePath, apiKey) {
+module.exports = function(basePath, apiKey, dbName) {
 
   basePath = url.parse(basePath);
 
@@ -27,7 +27,9 @@ module.exports = function(basePath, apiKey) {
 
   // Map the incoming request to a request to the DB
   var mapRequest = module.exports.mapRequest = function(req) {
-    var newReq = mapUrl(req.path, req.query);
+	var dbPath = '/databases/' + dbName + '/collections/' + req.params.collection + (req.params[0] ? req.params[0] : '');   
+	  var newReq = mapUrl(dbPath, req.query);
+//    var newReq = mapUrl(req.path, req.query);
     newReq.method = req.method;
     newReq.headers = req.headers || {};
     // We need to fix up the hostname
