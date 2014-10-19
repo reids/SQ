@@ -20,4 +20,8 @@ angular.module('admin-users-edit',[
     i18nNotifications.pushForCurrentRoute('crud.user.save.error', 'error');
   };
 
+  $scope.emailToLower = function() {
+	  $scope.user.email = angular.lowercase($scope.user.email);
+  };
+
 }]);
