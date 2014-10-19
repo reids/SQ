@@ -26,7 +26,7 @@ var restrictDB = function(req, res, next) {
     } else {
 		// If not authenticated then you can only post to the user collection, and with no id set
     	if (req.params.collection == 'users') {
-    		if (!req.query.q && !req.body.params[_id])
+    		if (!req.query.q && !req.put.params[_id])
     			next();
     	} else {
     		res.json(401, 'Unauthorised');

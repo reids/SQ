@@ -32,6 +32,9 @@ var security = {
     var request = rest.get(this.baseUrl, { qs: query, json: {} }, function(err, response, body) {
     	if (body.length == 1)
     		thismodule.apiKey=body[0].apiKey;
+    	else {
+    		console.log ("Warning, failed to retrieve APIKEY");
+    	}
       });
   },
   authenticationRequired: function(req, res, next) {
