@@ -12,16 +12,28 @@ module.exports = function(mongoProxy, utils, securityhandler) {
 	var apiRequest = function(req, res, next) {
 		console.log (" API request for " + req.params.object, req.params.action, req.params.id);
 			  
-		switch (req.params.collection) {
-		case "users":
-			processUserRequest(req, res, next);
-			break;
-		case "timezones":
-			processTimezoneRequest(req, res, next);
-			break;
-		default:
-			res.json(501, 'Not Implemented ');
+		try {
+			switch (req.params.collection) {
+			case "users":
+				processUserRequest(req, res, next);
+				break;
+			case "timezones":
+				processTimezoneRequest(req, res, next);
+				break;
+			default:
+				res.json(501, 'Not Implemented ');
+			}	
 		}
+		catch(err) {
+			switch (err) {
+			case 1:
+				res.json(400, 'Invalid method');
+				break;
+			default:
+				res.json(501, 'Unknown internal Error');
+			}
+			
+		} 
 	};
 
     return apiRequest;
@@ -32,10 +44,6 @@ function processUserRequest(req, res, next) {
     case "new":
     	processUserNewRequest(req, res, next);
     	break;
-//Login removed we are using the mongo DB mechanism ie superuser API key     	
-//    case "login":
-//    	processUserLoginRequest(req, res, next);
-//    	break;
     default:
 		  res.json(501, 'Not Implemented ');
     }
@@ -56,7 +64,7 @@ function processTimezoneRequest(req, res, next) {
     case "update":
     	processTimezoneUpdateRequest(req, res, next);
     	break;
-    default:
+    default: 
 		  res.json(501, 'Not Implemented ');
     }
 }
@@ -68,6 +76,9 @@ function processTimezoneRequest(req, res, next) {
  * @param next
  */
 function processUserNewRequest(req, res, next) {
+	if (req.method != 'PUT')
+		throw 1;
+	
 	  // Cannot add a user that exists, cannot over write an existing user
 	  if (!req.body._id && req.body.email) {
 		  var done = function(err, user) {
@@ -90,33 +101,27 @@ function processUserNewRequest(req, res, next) {
 }
 
 /**
- * Login a user and return the user token
- * @param req
- * @param res
- * @param next
- */
-function processUserLoginRequest(req, res, next) {
-	security.login(req, res, next);
-}
-
-/**
  * List the timezones
  * @param req
  * @param res
  * @param next
  */
 function processTimezoneListRequest(req, res, next) {
-	
-		var URL = '/databases/' + 'dummydb' + '/collections/' + req.params.collection;
-		req.path = URL;
-		if (req.query.user_id) {
-			var subQuery = { user_id : req.body.user_id };
-			req.query = { q : JSON.stringify(subQuery) };
-		}
-		dbProxy(req, res, next);		  
+	if (req.method != 'GET')
+		throw 1;
+
+	var URL = '/databases/' + 'dummydb' + '/collections/' + req.params.collection;
+	req.path = URL;
+	if (req.query.user_id) {
+		var subQuery = { user_id : req.body.user_id };
+		req.query = { q : JSON.stringify(subQuery) };
+	}
+	dbProxy(req, res, next);		  
 }
 
 function processTimezoneCreateRequest(req, res, next) {	
+	if (req.method != 'PUT')
+		throw 1;
 
 	// Need to have no documentid and a valid user id
 //	TODO
@@ -137,7 +142,9 @@ function processTimezoneCreateRequest(req, res, next) {
  * @param next
  */
 function processTimezoneDeleteRequest(req, res, next) {
-	
+	if (req.method != 'DELETE')
+		throw 1;
+
 	// Document id is required and the proxy expects it as req.params[0]
 	if (req.query.id) {
 		var URL = '/databases/' + 'dummydb' + '/collections/' + req.params.collection;
@@ -157,7 +164,9 @@ function processTimezoneDeleteRequest(req, res, next) {
  * @param next
  */
 function processTimezoneUpdateRequest(req, res, next) {
-	
+	if (req.method != 'PUT')
+		throw 1;
+
 	// Document id is required and the proxy expects it as req.params[0]
 	if (req.query.id) {
 		var URL = '/databases/' + 'dummydb' + '/collections/' + req.params.collection;
