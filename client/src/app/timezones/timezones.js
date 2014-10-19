@@ -6,7 +6,10 @@ angular.module('timezones', ['resources.timezones', 'security.authorization'])
 	    controller:'TimezonesViewCtrl',
 	    resolve:{
 	      timezones:['Timezones', 'security', function (Timezones, security) {
-	        return Timezones.forUser(security.currentUser);
+	    	  var promise = security.requestCurrentUser();
+	    	  return promise.then(function(currentUser) {
+	    		  return Timezones.forUser(currentUser);	    		  
+	    	  })
 	      }],
 	      authenticatedUser: securityAuthorizationProvider.requireAuthenticatedUser
 	    }

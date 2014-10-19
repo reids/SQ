@@ -11,16 +11,21 @@ angular.module('admin-timezones', [
 
   crudRouteProvider.routesFor('Timezones', 'admin')
     .whenList({
-        timezones: ['Timezones', 'security', function(Timezones, security) { return Timezones.forUser(security.currentUser); }],
-      adminUser: securityAuthorizationProvider.requireAdminUser
+      timezones: ['Timezones', 'security', function(Timezones, security) { 
+    	  var promise = security.requestCurrentUser();
+    	  return promise.then(function(currentUser) {
+    		  return Timezones.forUser(currentUser);	    		  
+    	  })
+   	  }],
+      adminUser: securityAuthorizationProvider.requireAuthenticatedUser,
     })
     .whenNew({
       timezone: ['Timezones', function(Timezones) { return new Timezones(); }],
-      adminUser: securityAuthorizationProvider.requireAdminUser
+      adminUser: securityAuthorizationProvider.requireAuthenticatedUser
     })
     .whenEdit({
       timezone: ['Timezones', '$route', function(Timezones, $route) { return Timezones.getById($route.current.params.itemId); }],
-      adminUser: securityAuthorizationProvider.requireAdminUser
+      adminUser: securityAuthorizationProvider.requireAuthenticatedUser
     });
 }])
 

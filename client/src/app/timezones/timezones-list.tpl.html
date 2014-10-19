@@ -22,7 +22,7 @@
 
 <form ng-submit="filter()">
 	<div class="well">
-	    <label for="filtercriteria">Filter Criteria</label>
+	    <label for="filtercriteria">Filter Criteria (regular expression)</label>
 	    <input type="text" name="filtercriteria" ng-model="filterregexp">
         <span ng-show="regExpErr" class="help-inline">Invalid regular expression.</span>
         <br><button class="btn btn-primary" ng-click="filter()">Filter</button>

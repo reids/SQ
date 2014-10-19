@@ -3,7 +3,7 @@
 
         <ul class="nav" ng-show="isAuthenticated()">
             <li ng-class="{active:isNavbarActive('projects')}"><a href="/timezones">My Timezones</a></li>
-            <li class="dropdown" ng-class="{active:isNavbarActive('admin'), open:isAdminOpen}" ng-show="isAdmin()">
+            <li class="dropdown" ng-class="{active:isNavbarActive('admin'), open:isAdminOpen}" ng-show="isAuthenticated()">
                 <a id="adminmenu" role="button" class="dropdown-toggle" ng-click="isAdminOpen=!isAdminOpen">Admin<b class="caret"></b></a>
                 <ul class="dropdown-menu" role="menu" aria-labelledby="adminmenu">
                     <li><a tabindex="-1" href="/admin/timezones" ng-click="isAdminOpen=false">Manage Timezones</a></li>
