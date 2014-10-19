@@ -8,11 +8,14 @@ module.exports = function(mongoProxy, utils, securityhandler) {
 	dbProxy = mongoProxy;
 	dbUtils = utils;
 	security = securityhandler;
+	APIKey = '1234';
 
 	var apiRequest = function(req, res, next) {
 		console.log (" API request for " + req.params.object, req.params.action, req.params.id);
 			  
 		try {
+			validateAPIKey(req);
+			
 			switch (req.params.collection) {
 			case "users":
 				processUserRequest(req, res, next);
@@ -29,10 +32,12 @@ module.exports = function(mongoProxy, utils, securityhandler) {
 			case 1:
 				res.json(400, 'Invalid method');
 				break;
+			case 2:
+				res.json(401, 'Unauthorized');
+				break;
 			default:
 				res.json(501, 'Unknown internal Error');
 			}
-			
 		} 
 	};
 
@@ -177,3 +182,9 @@ function processTimezoneUpdateRequest(req, res, next) {
 		res.json(403, 'Invalid');
 	}
 }
+
+function validateAPIKey(req) {
+	if (!security.loginAPI(req.query.APIKEY))
+		throw 2;
+}
+
