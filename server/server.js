@@ -63,7 +63,7 @@ app.namespace('/databases/:db/collections/:collection*', function() {
 
 app.namespace('/api/*', function() {
 	
-	app.all('/:collection/:action?*', api(dbProxy, dbUtils));
+	app.all('/:collection/:action?*', api(dbProxy, dbUtils, security));
 	
 	app.all('/', function(req, res, next) {
 		console.log("API request");
