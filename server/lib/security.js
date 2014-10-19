@@ -2,6 +2,7 @@ var express = require('express');
 var passport = require('passport');
 var MongoStrategy = require('./mongo-strategy');
 var app = express();
+var rest = require('request');
 
 var filterUser = function(user) {
   if ( user ) {
@@ -20,8 +21,18 @@ var filterUser = function(user) {
 };
 
 var security = {
-  initialize: function(url, apiKey, dbName, authCollection) {
+
+	initialize: function(url, apiKey, dbName, authCollection) {
     passport.use(new MongoStrategy(url, apiKey, dbName, authCollection));
+    //Load our APIKey, don't confuse with the mongoDB one
+    query = {};
+    query.apiKey = apiKey;
+    this.baseUrl = url + '/databases/' + dbName + '/collections/' + 'apikey';
+    thismodule = this;
+    var request = rest.get(this.baseUrl, { qs: query, json: {} }, function(err, response, body) {
+    	if (body.length == 1)
+    		thismodule.apiKey=body[0].apiKey;
+      });
   },
   authenticationRequired: function(req, res, next) {
     console.log('authRequired');
@@ -56,8 +67,15 @@ var security = {
     return passport.authenticate(MongoStrategy.name, authenticationFailed)(req, res, next);
   },
   logout: function(req, res, next) {
-    req.logout();
-    res.send(204);
+	    req.logout();
+	    res.send(204);
+  },
+  // Think of this as a logon method for API logons, all it does is validate the APIKey
+  loginAPI: function(apiKey) {
+	  	if (this.apiKey && this.apiKey == apiKey)
+	  		return true;
+	  	else
+	  		return false;
   }
 };
 
