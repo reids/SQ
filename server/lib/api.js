@@ -86,6 +86,7 @@ function processUserNewRequest(req, res, next) {
 	
 	  // Cannot add a user that exists, cannot over write an existing user
 	  if (!req.body._id && req.body.email) {
+		  req.body.email = req.body.email.toLowerCase();
 		  var done = function(err, user) {
 			  if (err || !user) {
 				  res.json(403, 'User exists');				  
@@ -117,10 +118,12 @@ function processTimezoneListRequest(req, res, next) {
 
 	var URL = '/databases/' + 'dummydb' + '/collections/' + req.params.collection;
 	req.path = URL;
-	if (req.query.user_id) {
-		var subQuery = { user_id : req.body.user_id };
-		req.query = { q : JSON.stringify(subQuery) };
-	}
+	var subQuery = {};
+	if (req.query.user_id)
+		subQuery.user_id = req.query.user_id;
+	if (req.query.id)
+		subQuery._id = { $oid: req.query.id };
+	req.query = { q : JSON.stringify(subQuery) };
 	dbProxy(req, res, next);		  
 }
 
