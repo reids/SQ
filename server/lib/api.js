@@ -24,19 +24,19 @@ module.exports = function(mongoProxy, utils, securityhandler) {
 				processTimezoneRequest(req, res, next);
 				break;
 			default:
-				res.json(501, 'Not Implemented ');
+				res.json(501, { statusText: 'Not Implemented'});
 			}	
 		}
 		catch(err) {
 			switch (err) {
 			case 1:
-				res.json(400, 'Invalid method');
+				res.json(400, { statusText: 'Invalid method'});
 				break;
 			case 2:
-				res.json(401, 'Unauthorized');
+				res.json(401, { statusText: 'Unauthorized'});
 				break;
 			default:
-				res.json(501, 'Unknown internal Error');
+				res.json(501, { statusText: 'Unknown internal Error'});
 			}
 		} 
 	};
@@ -46,11 +46,12 @@ module.exports = function(mongoProxy, utils, securityhandler) {
 
 function processUserRequest(req, res, next) {
     switch (req.params.action) {
+    case "create":
     case "new":
     	processUserNewRequest(req, res, next);
     	break;
     default:
-		  res.json(501, 'Not Implemented ');
+		res.json(501, { statusText: 'Not Implemented'});
     }
 		  
 }
@@ -60,6 +61,7 @@ function processTimezoneRequest(req, res, next) {
     case "list":
     	processTimezoneListRequest(req, res, next);
     	break;
+    case "new":
     case "create":
     	processTimezoneCreateRequest(req, res, next);
     	break;
@@ -70,7 +72,7 @@ function processTimezoneRequest(req, res, next) {
     	processTimezoneUpdateRequest(req, res, next);
     	break;
     default: 
-		  res.json(501, 'Not Implemented ');
+		res.json(501, { statusText: 'Not Implemented'});
     }
 }
 
@@ -81,15 +83,15 @@ function processTimezoneRequest(req, res, next) {
  * @param next
  */
 function processUserNewRequest(req, res, next) {
-	if (req.method != 'PUT')
+	if (req.method != 'POST')
 		throw 1;
 	
 	  // Cannot add a user that exists, cannot over write an existing user
 	  if (!req.body._id && req.body.email) {
 		  req.body.email = req.body.email.toLowerCase();
 		  var done = function(err, user) {
-			  if (err || !user) {
-				  res.json(403, 'User exists');				  
+			  if (user) {
+				  res.json(403, { statusText: 'User already exists'});				  
 			  } else {
 //	  Map to a mongo proxy friendly url, we are initially going to map like that, might revisit and build it all around
 //	  the api. We don't need to know the correct db name, the mongo proxy will fill it in
@@ -102,7 +104,7 @@ function processUserNewRequest(req, res, next) {
 			    done(err, user);
 			  });
 	  } else {
-		  res.json(403, 'Invalid body for new ');
+		  res.json(403, { statusText: 'Invalid body for new '});
 	  }
 }
 
@@ -128,7 +130,7 @@ function processTimezoneListRequest(req, res, next) {
 }
 
 function processTimezoneCreateRequest(req, res, next) {	
-	if (req.method != 'PUT')
+	if (req.method != 'POST')
 		throw 1;
 
 	// Need to have no documentid and a valid user id
@@ -140,7 +142,7 @@ function processTimezoneCreateRequest(req, res, next) {
 		req.path = URL;
 		dbProxy(req, res, next);		  
 	} else {
-		res.json(403, 'Invalid');
+		res.json(403, { statusText: 'Invalid'});
 	}
 }
 /**
@@ -161,7 +163,7 @@ function processTimezoneDeleteRequest(req, res, next) {
 		req.body = [];
 		dbProxy(req, res, next);		  
 	} else {
-		res.json(403, 'Invalid');
+		res.json(403, { statusText: 'Invalid'});
 	}	
 }
 
@@ -182,7 +184,7 @@ function processTimezoneUpdateRequest(req, res, next) {
 		req.params[0] = '/' + req.query.id; 
 		dbProxy(req, res, next);		  
 	} else {
-		res.json(403, 'Invalid');
+		res.json(403, { statusText: 'Invalid'});
 	}
 }
 
