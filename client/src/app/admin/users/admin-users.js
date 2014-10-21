@@ -1,4 +1,5 @@
 angular.module('admin-users', [
+  'resources.users',                               
   'admin-users-edit',
   
   'services.crud',
