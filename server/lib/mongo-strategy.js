@@ -37,7 +37,7 @@ MongoDBStrategy.prototype.query = function(query, done) {
 
   query.apiKey = this.apiKey;     // Add the apiKey to the passed in query
   var request = rest.get(this.baseUrl, { qs: query, json: {} }, function(err, response, body) {
-    done(err, body);
+	  done(err, body);
   });
 };
 
@@ -46,7 +46,10 @@ MongoDBStrategy.prototype.get = function(id, done) {
 	
   var query = { apiKey: this.apiKey };
   var request = rest.get(this.baseUrl + id, { qs: query, json: {} }, function(err, response, body) {
-    done(err, body);
+	  if (response.statusCode === 404)
+		  done(err, null);
+	  else
+		  done(err, body);
   });
 };
 
