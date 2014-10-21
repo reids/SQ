@@ -4,9 +4,6 @@ angular.module('mongolabResource', []).factory('mongolabResource', ['MONGOLAB_CO
 
     var url = MONGOLAB_CONFIG.baseUrl + MONGOLAB_CONFIG.dbName + '/collections/' + collectionName;
     var defaultParams = {};
-    if (MONGOLAB_CONFIG.apiKey) {
-      defaultParams.apiKey = MONGOLAB_CONFIG.apiKey;
-    }
     
     var thenFactoryMethod = function (httpPromise, successcb, errorcb, isArray) {
       var scb = successcb || angular.noop;
@@ -33,7 +30,8 @@ angular.module('mongolabResource', []).factory('mongolabResource', ['MONGOLAB_CO
         scb(result, response.status, response.headers, response.config);
         return result;
       }, function (response) {
-        ecb(undefined, response.status, response.headers, response.config);
+    	  var statusText = (response.data.statusText) ? response.data.statusText : undefined; 
+        ecb(statusText, response.status, response.headers, response.config);
         return undefined;
       });
     };
