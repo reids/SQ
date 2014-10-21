@@ -19,11 +19,11 @@ angular.module('app').constant('MONGOLAB_CONFIG', {
 //TODO: move those messages to a separate module
 angular.module('app').constant('I18N.MESSAGES', {
   'errors.route.changeError':'Route change error',
-  'crud.user.save.success':"A user with id '{{id}}' was saved successfully.",
-  'crud.user.save.error':"Something went wrong when saving a user...",
-  'crud.timezone.save.success':"A timezone with id '{{id}}' was saved successfully.",
-  'crud.timezone.remove.success':"A timezone with id '{{id}}' was removed successfully.",
-  'crud.timezone.save.error':"Something went wrong when saving a timezone...",
+  'crud.user.save.success':"User saved successfully for '{{email}}'.",
+  'crud.user.save.error':"Something went wrong when saving a user...{{ statusText }}",
+  'crud.timezone.save.success':"A timezone for '{{name}}' was saved successfully.",
+  'crud.timezone.remove.success':"A timezone for '{{name}}' was removed successfully.",
+  'crud.timezone.save.error':"Something went wrong when saving a timezone...{{ statusText }}",
   'login.reason.notAuthorized':"You do not have the necessary access permissions.  Do you want to login as someone else?",
   'login.reason.notAuthenticated':"You must be logged in to access this part of the application.",
   'login.error.invalidCredentials': "Login failed.  Please check your credentials and try again.",
