@@ -73,7 +73,7 @@ var security = {
 	    req.logout();
 	    res.send(204);
   },
-  // Think of this as a logon method for API logons, all it does is validate the APIKey
+  // Think of this as a login method for API, all it does is validate the APIKey
   loginAPI: function(apiKey) {
 	  	if (this.apiKey && this.apiKey == apiKey)
 	  		return true;

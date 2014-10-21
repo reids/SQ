@@ -48,15 +48,15 @@ app.use(function(req, res, next) {
 
 app.namespace('/databases/:db/collections/:collection*', function() {
   app.all('/', function(req, res, next) {
-    if ( req.method !== 'GET'&& (req.params.collection !== 'users') ) {
+    if ( req.method !== 'POST'&& (req.params.collection !== 'users') ) {
       // We require the user is authenticated to modify any collections except create user
       security.authenticationRequired(req, res, next);
     } else {
       next();
     }
   });
-  // restrict DB access to the logged in user
-  app.get('/', restrictDB);
+  // restrict DB access
+  app.all('/', restrictDB(dbUtils));
   // Proxy database calls to the MongoDB
   app.all('/', dbProxy);
 });
