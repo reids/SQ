@@ -56,7 +56,7 @@ angular.module('admin-timezones', [
   $scope.timezone = timezone;
 
   $scope.onSave = function(timezone) {
-    i18nNotifications.pushForNextRoute('crud.timezone.save.success', 'success', {id : timezone.$id()});
+    i18nNotifications.pushForNextRoute('crud.timezone.save.success', 'success', {name : timezone.name});
     $location.path('/admin/timezones');
   };
 
