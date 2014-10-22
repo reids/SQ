@@ -5,9 +5,12 @@ angular.module('dashboard', ['security.authorization'])
 	    templateUrl:'dashboard/dashboard.tpl.html',
 	    controller:'DashboardCtrl',
 	    resolve:{
-//	    	userInfo: security.requestCurrentUser().then(function(userInfo) {
-//	    		return userInfo;
-//	          })
+	    	userInfo: ['security', function(security) {
+	    		var promise = security.requestCurrentUser().then(function(userInfo) {
+	    			return userInfo;
+	    		});
+	    		return promise;
+	        }]
 	    }
 	  });
 	}])
@@ -15,13 +18,11 @@ angular.module('dashboard', ['security.authorization'])
 	
 .controller('DashboardCtrl', ['$scope', '$location', 'security', function ($scope, $location, security) {
   
-    security.requestCurrentUser().then(function(userInfo) {
         if ( security.isAuthenticated() ) {
             $location.path('/timezones');
         } else {
             $location.path('/dashboard');
         }
-      });
 
 }])
 
