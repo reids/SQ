@@ -16,7 +16,7 @@ angular.module('timezones', ['resources.timezones', 'security.authorization'])
 	  });
 	}])
 
-.controller('TimezonesViewCtrl', ['$scope', '$timeout', '$location', 'timezones', 'security', function ($scope, $timeout, $location, timezones, security) {
+.controller('TimezonesViewCtrl', ['$scope', '$interval', '$location', 'timezones', 'security', function ($scope, $interval, $location, timezones, security) {
   $scope.timezones = timezones;
   $scope.alltimezones = timezones;
 
@@ -32,11 +32,10 @@ angular.module('timezones', ['resources.timezones', 'security.authorization'])
     angular.forEach($scope.timezones, function(timezone) {
 	    $scope.currtimes[timezone.$id()] = moment().zone(timezone.offset * -60).format('HH:mm:ss');
   	  });
-	$timeout(tick, 1000);
   }
 	
   tick();
-
+  $interval(tick, 1000);
   $scope.viewTimezone = function (timezone) {
     $location.path('/timezones/'+timezone.$id());
   };

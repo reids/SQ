@@ -29,7 +29,7 @@ angular.module('admin-timezones', [
     });
 }])
 
-.controller('TimezonesListCtrl', ['$scope', '$timeout', 'crudListMethods', 'timezones', function($scope, $timeout, crudListMethods, timezones) {
+.controller('TimezonesListCtrl', ['$scope', '$interval', 'crudListMethods', 'timezones', function($scope, $interval, crudListMethods, timezones) {
   $scope.timezones = timezones;
 	  
   $scope.currtimes = [];
@@ -42,10 +42,10 @@ angular.module('admin-timezones', [
     angular.forEach($scope.timezones, function(timezone) {
 	    $scope.currtimes[timezone.$id()] = moment().zone(timezone.offset * -60).format('HH:mm:ss');
   	  });
-	$timeout(tick, 1000);
   }
-	
+  
   tick();
+  $interval(tick, 1000);
   angular.extend($scope, crudListMethods('/admin/timezones'));
 }])
 
