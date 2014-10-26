@@ -14,14 +14,19 @@ module.exports = function(mongoProxy, utils, securityhandler) {
 		console.log (" API request for " + req.params.object, req.params.action, req.params.id);
 			  
 		try {
-			validateAPIKey(req);
 			
 			switch (req.params.collection) {
 			case "users":
 				processUserRequest(req, res, next);
 				break;
 			case "timezones":
-				processTimezoneRequest(req, res, next);
+				validateAPIUP(req, res, next, function(user) {
+					if (user) {
+						processTimezoneRequest(req, res, next, user);
+					}
+					else
+						res.json(401, { statusText: 'Unauthorized'});
+				});
 				break;
 			default:
 				res.json(501, { statusText: 'Not Implemented'});
@@ -56,20 +61,20 @@ function processUserRequest(req, res, next) {
 		  
 }
 
-function processTimezoneRequest(req, res, next) {
+function processTimezoneRequest(req, res, next, user) {
     switch (req.params.action) {
     case "list":
-    	processTimezoneListRequest(req, res, next);
+    	processTimezoneListRequest(req, res, next, user);
     	break;
     case "new":
     case "create":
-    	processTimezoneCreateRequest(req, res, next);
+    	processTimezoneCreateRequest(req, res, next, user);
     	break;
     case "delete":
-    	processTimezoneDeleteRequest(req, res, next);
+    	processTimezoneDeleteRequest(req, res, next, user);
     	break;
     case "update":
-    	processTimezoneUpdateRequest(req, res, next);
+    	processTimezoneUpdateRequest(req, res, next, user);
     	break;
     default: 
 		res.json(501, { statusText: 'Not Implemented'});
@@ -114,30 +119,31 @@ function processUserNewRequest(req, res, next) {
  * @param res
  * @param next
  */
-function processTimezoneListRequest(req, res, next) {
+function processTimezoneListRequest(req, res, next, user) {
 	if (req.method != 'GET')
 		throw 1;
 
 	var URL = '/databases/' + 'dummydb' + '/collections/' + req.params.collection;
 	req.path = URL;
 	var subQuery = {};
-	if (req.query.user_id)
-		subQuery.user_id = req.query.user_id;
+	subQuery.user_id = user._id.$oid;	
 	if (req.query.id)
 		subQuery._id = { $oid: req.query.id };
 	req.query = { q : JSON.stringify(subQuery) };
 	dbProxy(req, res, next);		  
 }
 
-function processTimezoneCreateRequest(req, res, next) {	
+/**
+ * Create a new timezone document POST request
+ */
+function processTimezoneCreateRequest(req, res, next, user) {	
 	if (req.method != 'POST')
 		throw 1;
-
-	// Need to have no documentid and a valid user id
-//	TODO
 	
 	//don't do a create and pass a document id
 	if (!req.query.id) {
+		//	patch the userid into the request
+		req.body.user_id = user._id.$oid;
 		var URL = '/databases/' + 'dummydb' + '/collections/' + req.params.collection;
 		req.path = URL;
 		dbProxy(req, res, next);		  
@@ -151,15 +157,24 @@ function processTimezoneCreateRequest(req, res, next) {
  * @param res
  * @param next
  */
-function processTimezoneDeleteRequest(req, res, next) {
+function processTimezoneDeleteRequest(req, res, next, user) {
 	if (req.method != 'DELETE')
 		throw 1;
 
+	// We can't use a delete or we delete the document regardless, to qualify the delete with
+	// the user id we must use a PUT and qualify $oid and user_id in the query
 	// Document id is required and the proxy expects it as req.params[0]
 	if (req.query.id) {
+		//	patch the userid and oid into the query
+		var subQuery = {};
+		subQuery.user_id = user._id.$oid;	
+		subQuery._id = {};
+		subQuery._id.$oid = req.query.id;	
+		req.query.q = JSON.stringify(subQuery);
 		var URL = '/databases/' + 'dummydb' + '/collections/' + req.params.collection;
-		req.params[0] = '/' + req.query.id; 
+//		req.params[0] = '/' + req.query.id; 
 		req.path = URL;
+		req.method = 'PUT';
 		req.body = [];
 		dbProxy(req, res, next);		  
 	} else {
@@ -173,12 +188,14 @@ function processTimezoneDeleteRequest(req, res, next) {
  * @param res
  * @param next
  */
-function processTimezoneUpdateRequest(req, res, next) {
+function processTimezoneUpdateRequest(req, res, next, user) {
 	if (req.method != 'PUT')
 		throw 1;
 
 	// Document id is required and the proxy expects it as req.params[0]
 	if (req.query.id) {
+		//	patch the userid into the request
+		req.body.user_id = user._id.$oid;
 		var URL = '/databases/' + 'dummydb' + '/collections/' + req.params.collection;
 		req.path = URL;
 		req.params[0] = '/' + req.query.id; 
@@ -191,5 +208,15 @@ function processTimezoneUpdateRequest(req, res, next) {
 function validateAPIKey(req) {
 	if (!security.loginAPI(req.query.APIKEY))
 		throw 2;
+}
+
+function validateAPIUP(req, res, next, done) {
+	security.loginAPIUP(req, res, next, function (user){
+		if (user) {
+			delete req.query.email;
+			delete req.query.password;
+		}
+		done(user)
+	});
 }
 
