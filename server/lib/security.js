@@ -1,6 +1,7 @@
 var express = require('express');
 var passport = require('passport');
-var MongoStrategy = require('./mongo-strategy');
+var config = require('../config.js');
+var mongoStrategy;
 var app = express();
 var rest = require('request');
 
@@ -22,8 +23,16 @@ var filterUser = function(user) {
 
 var security = {
 
-	initialize: function(url, apiKey, dbName, authCollection) {
-    passport.use(new MongoStrategy(url, apiKey, dbName, authCollection));
+	initialize: function(url, apiKey, dbName, authCollection, brokerconf) {
+	// load the correct auth strategy, AMQ, or vanilla
+	if (brokerconf.active) {
+		mongoStrategy = require('./mongo-strategyAMQ');
+	}
+	else {
+		mongoStrategy = require('./mongo-strategy');
+	}
+	
+    passport.use(new mongoStrategy(url, apiKey, dbName, authCollection));
     //Load our APIKey, don't confuse with the mongoDB one
     query = {};
     query.apiKey = apiKey;
@@ -67,7 +76,7 @@ var security = {
       });
     }
 
-    return passport.authenticate(MongoStrategy.name, authenticationFailed)(req, res, next);
+    return passport.authenticate(mongoStrategy.name, authenticationFailed)(req, res, next);
   },
   logout: function(req, res, next) {
 	    req.logout();
