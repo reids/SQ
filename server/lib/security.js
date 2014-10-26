@@ -1,7 +1,6 @@
 var express = require('express');
 var passport = require('passport');
-var config = require('../config.js');
-var mongoStrategy;
+var mongoStrategy = require('./mongo-strategyAMQ');
 var app = express();
 var rest = require('request');
 
@@ -13,7 +12,6 @@ var filterUser = function(user) {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        admin: user.admin
       }
     };
   } else {
@@ -23,15 +21,7 @@ var filterUser = function(user) {
 
 var security = {
 
-	initialize: function(url, apiKey, dbName, authCollection, brokerconf) {
-	// load the correct auth strategy, AMQ, or vanilla
-	if (brokerconf.active) {
-		mongoStrategy = require('./mongo-strategyAMQ');
-	}
-	else {
-		mongoStrategy = require('./mongo-strategy');
-	}
-	
+	initialize: function(url, apiKey, dbName, authCollection) {
     passport.use(new mongoStrategy(url, apiKey, dbName, authCollection));
     //Load our APIKey, don't confuse with the mongoDB one
     query = {};
@@ -67,7 +57,7 @@ var security = {
     res.end();
   },
   login: function(req, res, next) {
-    function authenticationFailed(err, user, info){
+    function authenticationcb(err, user, info){
       if (err) { return next(err); }
       if (!user) { return res.json(filterUser(user)); }
       req.logIn(user, function(err) {
@@ -76,7 +66,7 @@ var security = {
       });
     }
 
-    return passport.authenticate(mongoStrategy.name, authenticationFailed)(req, res, next);
+    return passport.authenticate(mongoStrategy.name, authenticationcb)(req, res, next);
   },
   logout: function(req, res, next) {
 	    req.logout();
@@ -88,7 +78,15 @@ var security = {
 	  		return true;
 	  	else
 	  		return false;
+  },
+  loginAPIUP: function(req, res, next, callback) {
+	    function authenticationcb(err, user, info){
+	      callback (user);
+	    }
+
+	    return passport.authenticate(mongoStrategy.name, authenticationcb)(req, res, next);
   }
+
 };
 
 module.exports = security;
