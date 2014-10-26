@@ -71,19 +71,10 @@ MongoDBStrategy.prototype.verifyUser = function(email, password, done) {
   this.findByEmail(email, function(err, user) {
     if (!err && user) {
     	authservice.authenticate(email, password, user, done);
-    };
+    } else
+       done(err, user);
   });
 };
 
 module.exports = MongoDBStrategy;
 
-// TODO: Store hashes rather than passwords... node-bcrypt requires python to be installed :-(
-/*var bcrypt = require('bcrypt');
-function hashPassword(password) {
-  return bcrypt.hashSync(password, bcrypt.genSaltSync());
-}
-
-function checkPassword(password, hash) {
-  return bcrypt.compareSync(password, hash);
-}
-*/
