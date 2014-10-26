@@ -37,7 +37,12 @@ var getuserId = function(user) {
     return null;
   }
 };
-
+/**
+ * Unathenticated access has been attempted to the users collection, check if it should be allowed to proceed
+ * @param req
+ * @param res
+ * @param next
+ */
 function checkUnauthenticatedUserRequest(req, res, next) {
 
 	switch (req.method) {
