@@ -72,13 +72,14 @@ var authservice = {
               }
             done(user);
             }
-        outstandingRequests['1'] = responseClosure;
+        var correlationid = guid();
+        outstandingRequests[correlationid] = responseClosure;
 		authrequest = { 
 				type : 'createuser',
 				userid : email,
 				password : password
 				}
-        client.publish(destination, JSON.stringify(authrequest));		
+        client.publish(destination, JSON.stringify(authrequest), { "correlation-id" : correlationid });		
 	}
 	
 }
