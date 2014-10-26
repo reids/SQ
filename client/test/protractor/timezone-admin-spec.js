@@ -97,12 +97,21 @@ describe('TopTalApp timezone list', function() {
     });
 
     it('should reset the created timezones', function() {
-    	// Hardcoded to ID of test user	54495f5ce4b09b6275a90e8e
-    	request
-    		.put('https://api.mongolab.com/api/1/databases/mongogb1/collections/timezones?apiKey=M6UDE2i1mqi4s2BGZfElj_3o-bpPNTDE&q=%7B%22user_id%22%3A%2254495f5ce4b09b6275a90e8e%22%7D')
-    		.send( [] )
+    	var testuserid;
+    	
+        request
+    		.get('https://api.mongolab.com/api/1/databases/mongogb1/collections/users?apiKey=M6UDE2i1mqi4s2BGZfElj_3o-bpPNTDE&q=%7B%22email%22%3A%22test@testing.com%22%7D')
     		.end(function(error, res) {
     			console.log(res.body);
+    			testuserid= res.body[0]._id.$oid;
+    			console.log('Deleting timezones for user ' + testuserid);
+    			
+    			request
+    			.put('https://api.mongolab.com/api/1/databases/mongogb1/collections/timezones?apiKey=M6UDE2i1mqi4s2BGZfElj_3o-bpPNTDE&q=%7B%22user_id%22%3A%22' + testuserid + '%22%7D')
+    			.send( [] )
+    			.end(function(error, res) {
+    				console.log(res.body);
+    			});
     		});
     });
 });
