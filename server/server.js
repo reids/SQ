@@ -4,21 +4,20 @@ var https = require('https');
 var privateKey  = fs.readFileSync(__dirname + '/cert/server.key').toString();
 var certificate = fs.readFileSync(__dirname + '/cert/server.crt').toString();
 var credentials = {key: privateKey, cert: certificate};
-
 var express = require('express');
 var config = require('./config.js');
+
 var mongoProxy = require('./lib/mongo-proxy');
-var dbProxy=mongoProxy(config.mongo.dbUrl, config.mongo.apiKey, config.mongo.dbName);
-// Maybe include the db utils in mongoproxy?
+var dbProxy=mongoProxy(config.mongo);
 var dbUtils = require('./lib/dbutils');
 dbUtils.initialize(config.mongo.dbUrl, config.mongo.apiKey, config.mongo.dbName, config.security.usersCollection)
+
 var passport = require('passport');
 var security = require('./lib/security');
 var xsrf = require('./lib/xsrf');
 var protectJSON = require('./lib/protectJSON');
 require('express-namespace');
 var restrictDB = require('./lib/restrictDB');
-var api = require('./lib/api');
 
 var app = express();
 var secureServer = https.createServer(credentials, app);
@@ -27,15 +26,18 @@ var server = http.createServer(app);
 require('./lib/routes/static').addRoutes(app, config);
 
 app.use(protectJSON);
-
 app.use(express.logger());                                  // Log requests to the console
 app.use(express.bodyParser());                              // Extract the data from the body of the request - this is needed by the LocalStrategy authenticate method
 app.use(express.cookieParser(config.server.cookieSecret));  // Hash cookies with this secret
 app.use(express.cookieSession());                           // Store the session in the (secret) cookie
 app.use(passport.initialize());                             // Initialize PassportJS
 app.use(passport.session());                                // Use Passport's session authentication strategy - this stores the logged in user in the session and will now run on any request
-//app.use(xsrf);                                            // Add XSRF checks to the request
-security.initialize(config.mongo.dbUrl, config.mongo.apiKey, config.security.dbName, config.security.usersCollection); // Add a Mongo strategy for handling the authentication
+
+security.initialize(config.mongo.dbUrl, 
+		config.mongo.apiKey, 
+		config.security.dbName, 
+		config.security.usersCollection,
+		config.broker);
 
 app.use(function(req, res, next) {
   if ( req.user ) {
@@ -61,16 +63,7 @@ app.namespace('/databases/:db/collections/:collection*', function() {
   app.all('/', dbProxy);
 });
 
-app.namespace('/api/*', function() {
-	
-	app.all('/:collection/:action?*', api(dbProxy, dbUtils, security));
-	
-	app.all('/', function(req, res, next) {
-		console.log("API request");
-		next();
-	})
-});
-
+require('./lib/routes/api').addRoutes(app, dbProxy, dbUtils, security);
 require('./lib/routes/security').addRoutes(app, security);
 require('./lib/routes/appFile').addRoutes(app, config);
 
