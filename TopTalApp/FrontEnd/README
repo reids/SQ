@@ -1,0 +1,7 @@
+To Start front end tests
+
+webdriver-manager start
+
+E:\Working\TopTalTask\reid-sommerville\TopTalApp\FrontEnd\client\test\protractor>
+protractor conf.js
+protractor rest.js
