@@ -106,7 +106,8 @@ function processUserNewRequest(req, res, next) {
 		throw 1;
 	
 	  // Cannot add a user that exists, cannot over write an existing user
-	  if (!req.body._id && req.body.email) {
+	  
+	  if (validateUser(req) && !req.body._id && req.body.email) {
 		  req.body.email = req.body.email.toLowerCase();
 		  var done = function(err, user) {
 			  if (user) {
@@ -155,7 +156,7 @@ function processTimezoneCreateRequest(req, res, next, user) {
 		throw 1;
 	
 	//don't do a create and pass a document id
-	if (!req.query.id) {
+	if (validateTimezone(req) && !req.query.id) {
 		//	patch the userid into the request
 		req.body.user_id = user._id.$oid;
 		var URL = '/databases/' + 'dummydb' + '/collections/' + req.params.collection;
@@ -205,7 +206,9 @@ function processTimezoneUpdateRequest(req, res, next, user) {
 		throw 1;
 
 	// Similar to delete we qualify the update with the $oid and user_id in the query
-	if (req.query.id) {
+	if (validateTimezone(req) && req.query.id) {
+		//	patch the userid into the request
+		req.body.user_id = user._id.$oid;
 		//	patch the userid and oid into the query
 		var subQuery = {};
 		subQuery.user_id = user._id.$oid;	
@@ -220,11 +223,6 @@ function processTimezoneUpdateRequest(req, res, next, user) {
 	}
 }
 
-function validateAPIKey(req) {
-	if (!security.loginAPI(req.query.APIKEY))
-		throw 2;
-}
-
 function validateAPIUP(req, res, next, done) {
 	security.loginAPIUP(req, res, next, function (user){
 		if (user) {
@@ -235,3 +233,42 @@ function validateAPIUP(req, res, next, done) {
 	});
 }
 
+// validate there is only a user in the request
+var validateUser = function(req) {
+	  body=req.body;
+	  if (body.email && body.password && body.firstname && body.lastName ) {
+		  user = {
+			  email: body.email,
+			  password: body.password,
+			  firstName: body.firstName,
+			  lastName: body.lastName				  
+		  }
+		  req.body = user;
+		  return true;
+	  } else {
+	    return false;
+	  }
+};
+
+//validate there is only a timezone in the request
+var validateTimezone = function(req) {
+	  body=req.body;
+	  if (body.name && body.city && body.offset && isNumeric(body.offset)) {
+		  timezone = {
+			  name: body.name,
+			  city: body.city,
+			  offset: body.offset
+		  }
+		  req.body = timezone;
+		  return true;
+	  } else {
+	    return false;
+	  }
+};
+
+function isNumeric(n)
+{
+    var n2 = n;
+    n = parseFloat(n);
+    return (n!='NaN' && n2==n);
+}
