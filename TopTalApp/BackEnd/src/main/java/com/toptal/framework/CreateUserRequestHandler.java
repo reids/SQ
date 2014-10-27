@@ -2,6 +2,7 @@ package com.toptal.framework;
 
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.toptal.model.User;
@@ -44,6 +45,18 @@ public class CreateUserRequestHandler implements RequestHandler {
 
 		String userid = request.getString("userid");
 		String password = request.getString("password");
+		JSONObject response;
+		
+		try {
+			userid = request.getString("userid");
+			password = request.getString("password");
+		} catch (JSONException e) {
+			logger.warn("Exception handling message", e);
+			response = new JSONObject();
+			response.put("status", "exception");
+			response.put("exception", e.getMessage());
+			return response;
+		}
 		
 		User user = new User();
 		user.setId(userid);
@@ -56,7 +69,7 @@ public class CreateUserRequestHandler implements RequestHandler {
 			logger.error("Exception creating user", e);
 		}
 
-		JSONObject response = new JSONObject();
+		response = new JSONObject();
 		response.put("type",  "createuser_response");
 		response.put("status", bstatus ? "created" : "error");
 		

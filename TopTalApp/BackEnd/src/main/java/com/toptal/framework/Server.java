@@ -1,5 +1,8 @@
 package com.toptal.framework;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import javax.annotation.PostConstruct;
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -29,6 +32,8 @@ public class Server {
 
 	private Connection connection;
 
+	ExecutorService executorService = Executors.newFixedThreadPool(10);
+	
 	public Server() {
 	}
 	
@@ -106,11 +111,7 @@ public class Server {
 				}
 				logger.debug("Message Arrived, correlationid: " + msg.getJMSCorrelationID() + " body: " + body);
 				JSONObject request = new JSONObject(body);
-				JSONObject response = onMessage(request);
-				ActiveMQTextMessage reply = new ActiveMQTextMessage();
-				reply.setText(response.toString());
-				reply.setJMSCorrelationID(msg.getJMSCorrelationID());
-				producer.send(reply);
+				onMessage(request, msg);
 			} catch (JMSException e) {
 				logger.error("Exception from activeMQ", e);
 			}
@@ -121,7 +122,7 @@ public class Server {
 	 * @param request
 	 * @throws JMSException
 	 */
-	public JSONObject onMessage(JSONObject request) {
+	public JSONObject onMessage2(JSONObject request, Message msg) {
 		RequestHandler handler = requestHandlerFactory.createRequest(request);
 		JSONObject response;
 		try {
@@ -133,6 +134,17 @@ public class Server {
 			response.put("exception", e.getMessage());
 		}
 		return response;
+	}
+
+	/**
+	 * Main on Message entry point, allows for the flexibility to make this a callback
+	 * @param request
+	 * @throws JMSException
+	 */
+	public void onMessage(JSONObject request, Message msg) {
+		RequestHandler handler = requestHandlerFactory.createRequest(request);
+		RequestHandlerWrapper wrapper = new RequestHandlerWrapper(handler, msg, producer);
+		executorService.execute(wrapper);
 	}
 
 	private static String env(String key, String defaultValue) {

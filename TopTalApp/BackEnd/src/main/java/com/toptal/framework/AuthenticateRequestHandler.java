@@ -1,7 +1,7 @@
 package com.toptal.framework;
 
-import java.util.logging.Logger;
-
+import org.apache.log4j.Logger;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.toptal.service.UserService;
@@ -42,12 +42,24 @@ public class AuthenticateRequestHandler implements RequestHandler {
 	@Override
 	public JSONObject onMessage() {
 
-		String userid = request.getString("userid");
-		String password = request.getString("password");
+		String userid;
+		String password;
+		JSONObject response;
+		
+		try {
+			userid = request.getString("userid");
+			password = request.getString("password");
+		} catch (JSONException e) {
+			logger.warn("Exception handling message", e);
+			response = new JSONObject();
+			response.put("status", "exception");
+			response.put("exception", e.getMessage());
+			return response;
+		}
 
 		boolean bstatus = userService.isPasswordValid(userid, password);
 
-		JSONObject response = new JSONObject();
+		response = new JSONObject();
 		response.put("type", "authenticate_response");
 		response.put("status", bstatus ? "authenticated" : "unauthenticated");
 
