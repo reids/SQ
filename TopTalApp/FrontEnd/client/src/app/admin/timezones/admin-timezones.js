@@ -34,10 +34,6 @@ angular.module('admin-timezones', [
 	  
   $scope.currtimes = [];
   
-  angular.forEach($scope.timezones, function(timezone) {
-	    $scope.currtimes[timezone.$id()] = moment().zone(timezone.offset * -60).format('HH:mm:ss');
-	  });
-  
   var tick = function() {
     angular.forEach($scope.timezones, function(timezone) {
 	    $scope.currtimes[timezone.$id()] = moment().zone(timezone.offset * -60).format('HH:mm:ss');

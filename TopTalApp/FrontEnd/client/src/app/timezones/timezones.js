@@ -23,10 +23,7 @@ angular.module('timezones', ['resources.timezones', 'security.authorization'])
   $scope.currtimes = [];
   
   $scope.currenttime = moment().format('HH:mm:ss');
-  angular.forEach($scope.timezones, function(timezone) {
-	    $scope.currtimes[timezone.$id()] = moment().zone(timezone.offset * -60).format('HH:mm:ss');
-	  });
-  
+
   var tick = function() {
     $scope.currenttime = moment().format('HH:mm:ss');
     angular.forEach($scope.timezones, function(timezone) {
