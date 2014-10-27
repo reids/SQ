@@ -177,7 +177,6 @@ function processTimezoneDeleteRequest(req, res, next, user) {
 
 	// We can't use a delete or we delete the document regardless, to qualify the delete with
 	// the user id we must use a PUT and qualify $oid and user_id in the query
-	// Document id is required and the proxy expects it as req.params[0]
 	if (req.query.id) {
 		//	patch the userid and oid into the query
 		var subQuery = {};
@@ -186,7 +185,6 @@ function processTimezoneDeleteRequest(req, res, next, user) {
 		subQuery._id.$oid = req.query.id;	
 		req.query.q = JSON.stringify(subQuery);
 		var URL = '/databases/' + 'dummydb' + '/collections/' + req.params.collection;
-//		req.params[0] = '/' + req.query.id; 
 		req.path = URL;
 		req.method = 'PUT';
 		req.body = [];
@@ -206,13 +204,16 @@ function processTimezoneUpdateRequest(req, res, next, user) {
 	if (req.method != 'PUT')
 		throw 1;
 
-	// Document id is required and the proxy expects it as req.params[0]
+	// Similar to delete we qualify the update with the $oid and user_id in the query
 	if (req.query.id) {
-		//	patch the userid into the request
-		req.body.user_id = user._id.$oid;
+		//	patch the userid and oid into the query
+		var subQuery = {};
+		subQuery.user_id = user._id.$oid;	
+		subQuery._id = {};
+		subQuery._id.$oid = req.query.id;	
+		req.query.q = JSON.stringify(subQuery);
 		var URL = '/databases/' + 'dummydb' + '/collections/' + req.params.collection;
 		req.path = URL;
-		req.params[0] = '/' + req.query.id; 
 		dbProxy(req, res, next);		  
 	} else {
 		res.json(403, { statusText: 'Invalid'});
