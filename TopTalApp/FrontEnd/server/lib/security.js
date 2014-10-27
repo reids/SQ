@@ -21,20 +21,8 @@ var filterUser = function(user) {
 
 var security = {
 
-	initialize: function(url, apiKey, dbName, authCollection) {
+  initialize: function(url, apiKey, dbName, authCollection) {
     passport.use(new mongoStrategy(url, apiKey, dbName, authCollection));
-    //Load our APIKey, don't confuse with the mongoDB one
-    query = {};
-    query.apiKey = apiKey;
-    this.baseUrl = url + '/databases/' + dbName + '/collections/' + 'apikey';
-    thismodule = this;
-    var request = rest.get(this.baseUrl, { qs: query, json: {} }, function(err, response, body) {
-    	if (body.length == 1)
-    		thismodule.apiKey=body[0].apiKey;
-    	else {
-    		console.log ("Warning, failed to retrieve APIKEY");
-    	}
-      });
   },
   authenticationRequired: function(req, res, next) {
     console.log('authRequired');
@@ -72,13 +60,7 @@ var security = {
 	    req.logout();
 	    res.send(204);
   },
-  // Think of this as a login method for API, all it does is validate the APIKey
-  loginAPI: function(apiKey) {
-	  	if (this.apiKey && this.apiKey == apiKey)
-	  		return true;
-	  	else
-	  		return false;
-  },
+  // Loging the REST API via Username and password
   loginAPIUP: function(req, res, next, callback) {
 	    function authenticationcb(err, user, info){
 	      callback (user);
