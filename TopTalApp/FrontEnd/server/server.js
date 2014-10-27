@@ -15,7 +15,6 @@ dbUtils.initialize(config.mongo.dbUrl, config.mongo.apiKey, config.mongo.dbName,
 var passport = require('passport');
 var security = require('./lib/security');
 var xsrf = require('./lib/xsrf');
-var protectJSON = require('./lib/protectJSON');
 require('express-namespace');
 var restrictDB = require('./lib/restrictDB');
 
@@ -25,7 +24,6 @@ var server = http.createServer(app);
 
 require('./lib/routes/static').addRoutes(app, config);
 
-app.use(protectJSON);
 app.use(express.logger());                                  // Log requests to the console
 app.use(express.bodyParser());                              // Extract the data from the body of the request - this is needed by the LocalStrategy authenticate method
 app.use(express.cookieParser(config.server.cookieSecret));  // Hash cookies with this secret
