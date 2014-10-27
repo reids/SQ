@@ -62,23 +62,37 @@ function processUserRequest(req, res, next) {
 }
 
 function processTimezoneRequest(req, res, next, user) {
-    switch (req.params.action) {
-    case "list":
-    	processTimezoneListRequest(req, res, next, user);
-    	break;
-    case "new":
-    case "create":
-    	processTimezoneCreateRequest(req, res, next, user);
-    	break;
-    case "delete":
-    	processTimezoneDeleteRequest(req, res, next, user);
-    	break;
-    case "update":
-    	processTimezoneUpdateRequest(req, res, next, user);
-    	break;
-    default: 
-		res.json(501, { statusText: 'Not Implemented'});
-    }
+	try {
+	    switch (req.params.action) {
+	    case "list":
+	    	processTimezoneListRequest(req, res, next, user);
+	    	break;
+	    case "new":
+	    case "create":
+	    	processTimezoneCreateRequest(req, res, next, user);
+	    	break;
+	    case "delete":
+	    	processTimezoneDeleteRequest(req, res, next, user);
+	    	break;
+	    case "update":
+	    	processTimezoneUpdateRequest(req, res, next, user);
+	    	break;
+	    default: 
+			res.json(501, { statusText: 'Not Implemented'});
+	    }
+	}
+	catch(err) {
+		switch (err) {
+		case 1:
+			res.json(400, { statusText: 'Invalid method'});
+			break;
+		case 2:
+			res.json(401, { statusText: 'Unauthorized'});
+			break;
+		default:
+			res.json(501, { statusText: 'Unknown internal Error'});
+		}
+	} 
 }
 
 /**
