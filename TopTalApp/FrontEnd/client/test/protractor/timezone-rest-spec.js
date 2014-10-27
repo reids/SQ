@@ -90,6 +90,42 @@ describe('TopTalApp timezone list', function() {
     	
     });
 	
+    it('should fail to modify a timezone when logged in as the wrong user', function() {
+    	
+    	request
+    	.put('http://localhost:9080/api/timezones/update?email=admin@abc.com&password=changeme&id=' + testtimezoneid)
+    	.send( {
+    	    "name": "GMTUpdate",
+    	    "city": "LondonUpdate",
+    	    "offset": "0"
+    	} )
+    	.end(function(error, res) {
+    		console.log("Timezone Invalid Update Result");    		
+    		console.log(res.body);
+    		recordcount= res.body.n;
+    		console.log('recordcount=' + recordcount);
+    		expect(recordcount).toEqual(0);
+    	});
+    	
+    	waits(2000);
+    	
+    });
+	
+    it('should fail to delete the timezone when logged in as the wrong user', function() {
+    	
+    	request
+    	.del('http://localhost:9080/api/timezones/delete?email=admin@abc.com&password=changeme&id=' + testtimezoneid)
+    	.end(function(error, res) {
+    		console.log("Timezone Invlaid Delete Result");    		
+    		console.log(res.body);
+    		recordcount= res.body.removed;
+    		expect(recordcount).toEqual(0);
+    	});
+    	
+    	waits(2000);
+    	
+    });
+    
     it('should delete a timezone for the z@z.com user', function() {
     	
     	request
@@ -97,13 +133,15 @@ describe('TopTalApp timezone list', function() {
     	.end(function(error, res) {
     		console.log("Timezone Delete Result");    		
     		console.log(res.body);
+    		recordcount= res.body.removed;
+    		expect(recordcount).toEqual(1);
+
     	});
     	
     	waits(2000);
     	
-//    	expect(modifiedtimezoneid).toEqual(deletedtimezoneid);
     });
-
+    
     it('should delete the user and created timezones', function() {
     	var testuserid;
     	
@@ -130,5 +168,6 @@ describe('TopTalApp timezone list', function() {
         			});
 
     		});
+        
     });
  });
