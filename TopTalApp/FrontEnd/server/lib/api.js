@@ -188,6 +188,7 @@ function processTimezoneDeleteRequest(req, res, next, user) {
 		var URL = '/databases/' + 'dummydb' + '/collections/' + req.params.collection;
 		req.path = URL;
 		req.method = 'PUT';
+        req.headers['Content-Type'] = 'application/json';
 		req.body = [];
 		dbProxy(req, res, next);		  
 	} else {
@@ -236,7 +237,7 @@ function validateAPIUP(req, res, next, done) {
 // validate there is only a user in the request
 var validateUser = function(req) {
 	  body=req.body;
-	  if (body.email && body.password && body.firstname && body.lastName ) {
+	  if (body.email && body.password && body.firstName && body.lastName ) {
 		  user = {
 			  email: body.email,
 			  password: body.password,
