@@ -20,7 +20,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.toptal.framework.AuthenticateRequestHandler;
 import com.toptal.framework.CreateUserRequestHandler;
 import com.toptal.framework.RequestHandler;
-import com.toptal.framework.Server;
 import com.toptal.framework.SingleRequestHandlerFactory;
 import com.toptal.framework.UnknownRequestHandler;
 import com.toptal.model.User;
@@ -35,7 +34,6 @@ public class TestUserRequestHandler {
 	private static ConfigurableApplicationContext context;
 	private static UserService userService;
 	private static SingleRequestHandlerFactory factory;
-	private static Server server;
 
 	/**
 	 * @throws java.lang.Exception
@@ -48,8 +46,6 @@ public class TestUserRequestHandler {
 		userService = (UserService) context.getBean("userService");
 		factory = (SingleRequestHandlerFactory) context
 				.getBean("singleRequestHandlerFactory");
-		
-		server = (Server) context.getBean("server");
 	}
 
 	/**
@@ -118,7 +114,7 @@ public class TestUserRequestHandler {
 		handler = factory.createRequest(request);
 		JSONObject response = handler.onMessage();
 
-		assertEquals(response.getString("status"), "success");
+		assertEquals("created", response.getString("status") );
 
 	}
 
@@ -134,12 +130,15 @@ public class TestUserRequestHandler {
 		request.put("type", "createuser");
 		request.put("userid", "test@testing.com");
 		request.put("password", "test");
-		server.onMessage(request);
+		handler = factory.createRequest(request);
+		handler.onMessage();
 
 		request = new JSONObject();
 		request.put("type", "authenticate");
 		request.put("userid", "test@testing.com");
 		request.put("password", "test");
+		handler = factory.createRequest(request);
+		handler.onMessage();
 
 		handler = factory.createRequest(request);
 		JSONObject response;
@@ -170,10 +169,11 @@ public class TestUserRequestHandler {
 
 		assertEquals(response.getString("status"), "unknown request");
 		
-		// Missing fields
+		// Test Missing fields
 		request = new JSONObject();
 		request.put("type", "authenticate");
-		response = server.onMessage(request);
+		handler = factory.createRequest(request);
+		response = handler.onMessage();
 		
 		assertEquals("exception", response.getString("status") );
 		
