@@ -1,3 +1,14 @@
+To start the app
+start MySql service
+start activemq
+From Eclipse run App.java in TopTalBackEnd
+open a command prompt in <app folder>\reid-sommerville\TopTalApp\FrontEnd\client
+	grunt build
+open a command prompt in <app folder>\reid-sommerville\TopTalApp\FrontEnd\server
+	node server.js
+	
+
+
 To Start front end tests
 
 webdriver-manager start
